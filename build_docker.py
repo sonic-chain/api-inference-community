@@ -6,52 +6,55 @@ import sys
 import uuid
 
 
-def run(command):
+def run(command, output_file=None):
     print(" ".join(command))
-    p = subprocess.run(command)
-    if p.returncode != 0:
-        sys.exit(p.returncode)
+    try:
+        if output_file:
+            with open(output_file, "w") as f:
+                p = subprocess.run(command, stdout=f, stderr=subprocess.STDOUT, check=True)
+        else:
+            p = subprocess.run(command, check=True)
+    except subprocess.CalledProcessError as e:
+        print(f"Error: {e}")
+        sys.exit(e.returncode)
 
 
-def build(framework: str, is_gpu: bool):
-    DEFAULT_HOSTNAME = os.getenv("DEFAULT_HOSTNAME")
-    hostname = DEFAULT_HOSTNAME
-    tag_id = str(uuid.uuid4())[:5]
-    tag = f"{framework}-{tag_id}"
-    container_tag = f"{hostname}/api-inference/community:{tag}"
+def build(root_dir: str, framework: str, tag: str, build_log: str, is_gpu: bool):
+    if tag is None:
+        DEFAULT_HOSTNAME = os.getenv("DEFAULT_HOSTNAME")
+        hostname = DEFAULT_HOSTNAME
+        tag_id = str(uuid.uuid4())[:5]
+        tag = f"{framework}-{tag_id}"
+        container_tag = f"{hostname}/api-inference/community:{tag}"
+    else:
+        container_tag = tag
 
-    command = ["docker", "build", f"docker_images/{framework}", "-t", container_tag]
-    run(command)
-
-    password = os.environ["REGISTRY_PASSWORD"]
-    username = os.environ["REGISTRY_USERNAME"]
-    command = ["echo", password]
-    ecr_login = subprocess.Popen(command, stdout=subprocess.PIPE)
-    docker_login = subprocess.Popen(
-        ["docker", "login", "-u", username, "--password-stdin", hostname],
-        stdin=ecr_login.stdout,
-        stdout=subprocess.PIPE,
-    )
-    docker_login.communicate()
-
-    command = ["docker", "push", container_tag]
-    run(command)
+    command = ["docker", "build", f"{root_dir}/docker_images/{framework}", "-t", container_tag]
+    run(command, build_log)
     return tag
 
 
 def main():
-    frameworks = {
-        dirname for dirname in os.listdir("docker_images") if dirname != "common"
-    }
-    framework_choices = frameworks.copy()
-    framework_choices.add("all")
-
     parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "root_dir",
+        type=str,
+        help="python file root dir",
+    )
     parser.add_argument(
         "framework",
         type=str,
-        choices=framework_choices,
         help="Which framework image to build.",
+    )
+    parser.add_argument(
+        "tag",
+        type=str,
+        help="Image new tag",
+    )
+    parser.add_argument(
+        "build_log",
+        type=str,
+        help="build log file name",
     )
     parser.add_argument(
         "--out",
@@ -65,34 +68,8 @@ def main():
     )
     args = parser.parse_args()
 
-    branch = (
-        subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"])
-        .decode("utf-8")
-        .strip()
-    )
-    if branch != "main":
-        raise Exception(f"Go to branch `main` ({branch})")
-
-    print("Pulling")
-    subprocess.run(["git", "pull"])
-
-    if args.framework == "all":
-        outputs = []
-        for framework in frameworks:
-            tag = build(framework, args.gpu)
-            outputs.append((framework, tag))
-
-    else:
-        tag = build(args.framework, args.gpu)
-        outputs = [(args.framework, tag)]
-
-    for (framework, tag) in outputs:
-        compute = "GPU" if args.gpu else "CPU"
-        name = f"{framework.upper()}_{compute}_TAG"
-        print(name, tag)
-        if args.out:
-            with open(args.out, "w") as f:
-                f.write(f"{name}={tag}\n")
+    tag = build(args.root_dir, args.framework, args.tag, args.build_log, args.gpu)
+    print(tag)
 
 
 if __name__ == "__main__":

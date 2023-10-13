@@ -55,7 +55,7 @@ async def homepage(request):
     python_code = f"""
     import requests
 
-    API_URL = {api_url}
+    API_URL = "{api_url}"
 
     def query(payload):
       response = requests.post(API_URL, json=payload)
@@ -79,7 +79,7 @@ async def homepage(request):
     javaScript_code = f"""
     async function query(data) {{
         const response = await fetch(
-            " {api_url}",
+            "{api_url}",
             {{
                 method: "POST",
                 body: JSON.stringify(data),

@@ -360,6 +360,7 @@ def normalize_payload_image(bpayload: bytes) -> Tuple[Any, Dict]:
         pass
 
     img = Image.open(BytesIO(bpayload))
+    print(img)
     return img, {}
 
 

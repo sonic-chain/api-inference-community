@@ -1,4 +1,4 @@
-async def image_to_text_example(api_url: str) -> [str, str, str]:
+def image_to_text_example(api_url: str) -> [str, str, str]:
     python_code = f"""
        import requests
 
@@ -42,7 +42,7 @@ async def image_to_text_example(api_url: str) -> [str, str, str]:
     return python_code, js_code, curl_code
 
 
-async def asr_example(api_url: str) -> [str, str, str]:
+def asr_example(api_url: str) -> [str, str, str]:
     python_code = f"""
         import requests
 
@@ -85,7 +85,7 @@ async def asr_example(api_url: str) -> [str, str, str]:
     return python_code, js_code, curl_code
 
 
-async def text_speech_example(api_url: str) -> [str, str, str]:
+def text_speech_example(api_url: str) -> [str, str, str]:
     python_code = f"""
        import requests
 

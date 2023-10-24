@@ -79,7 +79,7 @@ async def homepage(request):
     javaScript_code = f"""
     async function query(data) {{
         const response = await fetch(
-            " {api_url}",
+            "{api_url}",
             {{
                 method: "POST",
                 body: JSON.stringify(data),

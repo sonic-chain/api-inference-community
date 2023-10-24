@@ -9,7 +9,10 @@ from starlette.applications import Starlette
 from starlette.middleware import Middleware
 from starlette.middleware.gzip import GZipMiddleware
 from starlette.routing import Route
-
+from starlette.templating import Jinja2Templates
+from starlette.routing import Mount
+from starlette.staticfiles import StaticFiles
+from api_example import image_to_text_example, asr_example, text_speech_example
 
 TASK = os.getenv("TASK")
 MODEL_ID = os.getenv("MODEL_ID")
@@ -40,6 +43,24 @@ ALLOWED_TASKS: Dict[str, Type[Pipeline]] = {
     "text-to-speech": TransformersPipeline,
 }
 
+templates = Jinja2Templates(directory='app/templates')
+
+
+async def homepage(request):
+    task = os.environ['TASK']
+    api_url = 'https://' + os.environ['result_url']
+
+    if task == 'image-to-text':
+        result = image_to_text_example(api_url)
+    elif task == 'automatic-speech-recognition':
+        result = asr_example(api_url)
+    elif task == 'text-to-speech':
+        result = text_speech_example(api_url)
+
+    context = {'request': request, 'api_url': api_url, 'python_code': result[0],
+               'javaScript_code': result[1], 'curl_code': result[2]}
+    return templates.TemplateResponse('index.html', context)
+
 
 @functools.lru_cache()
 def get_pipeline() -> Pipeline:
@@ -51,6 +72,8 @@ def get_pipeline() -> Pipeline:
 
 
 routes = [
+    Mount('/static', app=StaticFiles(directory="app/templates/static"), name="static"),
+    Route('/', endpoint=homepage),
     Route("/{whatever:path}", status_ok),
     Route("/{whatever:path}", pipeline_route, methods=["POST"]),
 ]

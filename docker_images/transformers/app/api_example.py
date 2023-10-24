@@ -1,7 +1,3 @@
-from starlette.requests import Request
-from starlette.responses import JSONResponse, Response
-
-
 async def image_to_text_example(api_url: str) -> [str, str, str]:
     python_code = f"""
        import requests

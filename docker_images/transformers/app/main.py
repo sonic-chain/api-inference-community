@@ -12,7 +12,7 @@ from starlette.routing import Route
 from starlette.templating import Jinja2Templates
 from starlette.routing import Mount
 from starlette.staticfiles import StaticFiles
-from api_example import image_to_text_example, asr_example, text_speech_example
+from app.api_example import image_to_text_example, asr_example, text_speech_example
 
 TASK = os.getenv("TASK")
 MODEL_ID = os.getenv("MODEL_ID")

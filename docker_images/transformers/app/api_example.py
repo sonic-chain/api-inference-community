@@ -1,17 +1,17 @@
 def image_to_text_example(api_url: str) -> [str, str, str]:
     python_code = f"""
-       import requests
-
-       API_URL = {api_url}
-
-      def query(filename):
+    import requests
+    
+    API_URL = "{api_url}"
+    
+    def query(filename):
         with open(filename, "rb") as f:
-        data = f.read()
+            data = f.read()
         response = requests.post(API_URL, data=data)
         return response.json()
-
-      output = query("cats.jpg")
-      print(output)
+    
+    output = query("cats.jpg")
+    print(output)
        """
 
     curl_code = f"""
@@ -44,17 +44,17 @@ def image_to_text_example(api_url: str) -> [str, str, str]:
 
 def asr_example(api_url: str) -> [str, str, str]:
     python_code = f"""
-        import requests
+    import requests
 
-        API_URL = {api_url}
-        def query(filename):
-            with open(filename, "rb") as f:
-                data = f.read()
-            response = requests.post(API_URL, data=data)
-            return response.json()
-        
-        output = query("sample1.flac")
-        print(output)
+    API_URL = "{api_url}"
+    def query(filename):
+        with open(filename, "rb") as f:
+            data = f.read()
+        response = requests.post(API_URL, data=data)
+        return response.json()
+    
+    output = query("sample1.flac")
+    print(output)
        """
 
     curl_code = f"""
@@ -87,18 +87,18 @@ def asr_example(api_url: str) -> [str, str, str]:
 
 def text_speech_example(api_url: str) -> [str, str, str]:
     python_code = f"""
-       import requests
-
-        API_URL = {api_url}
-        
-        def query(payload):
-            response = requests.post(API_URL, headers=headers, json=payload)
-            return response.json()
-            
-        output = query({{
-            "inputs": "The answer to the universe is 42",
-        }})
-        print(output)
+    import requests
+    
+    API_URL = "{api_url}"
+    
+    def query(payload):
+        response = requests.post(API_URL, headers=headers, json=payload)
+        return response.json()
+    
+    output = query({{
+        "inputs": "The answer to the universe is 42",
+    }})
+    print(output)
        """
 
     curl_code = f"""

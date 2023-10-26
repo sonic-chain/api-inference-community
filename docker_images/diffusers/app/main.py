@@ -55,7 +55,7 @@ async def homepage(request):
     python_code = f"""
 import requests
 
-API_URL = {api_url}
+API_URL = "{api_url}"
 
 
 def query(payload):
